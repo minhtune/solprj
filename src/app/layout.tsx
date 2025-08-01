@@ -4,6 +4,7 @@ import "./globals.css";
 import { WalletProvider } from "@/components/providers/wallet-provider";
 import { ClusterProvider } from "@/components/providers/cluster-provider";
 import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -37,6 +38,7 @@ export default function RootLayout({
             <main className="min-h-screen">
               {children}
             </main>
+            <Footer />
           </ClusterProvider>
         </WalletProvider>
       </body>
