@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,16 +16,39 @@ export default function LocationPage() {
   const locationId = parseInt(params.id as string);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const location = locationsData.find(loc => loc.id === locationId);
+
+  // Cleanup timeout on component unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleCheckIn = () => {
     setIsCheckedIn(true);
     setShowSuccessMessage(true);
+    setIsFadingOut(false);
+    
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // Start fade out after 2.5 seconds
+    timeoutRef.current = setTimeout(() => {
+      setIsFadingOut(true);
+    }, 2500);
     
     // Hide success message after 3 seconds
-    setTimeout(() => {
+    timeoutRef.current = setTimeout(() => {
       setShowSuccessMessage(false);
+      setIsFadingOut(false);
     }, 3000);
   };
 
@@ -47,8 +70,12 @@ export default function LocationPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 py-8 px-4">
       {/* Success Message Overlay */}
       {showSuccessMessage && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center shadow-xl max-w-md mx-4">
+        <div className={`fixed inset-0 bg-black/50 flex items-center justify-center z-50 transition-opacity duration-500 ${
+          isFadingOut ? 'opacity-0' : 'opacity-100'
+        }`}>
+          <div className={`bg-white dark:bg-gray-800 rounded-lg p-8 text-center shadow-xl max-w-md mx-4 transition-all duration-500 ${
+            isFadingOut ? 'scale-95 opacity-0' : 'scale-100 opacity-100'
+          }`}>
             <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

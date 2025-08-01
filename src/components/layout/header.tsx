@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { NetworkToggle } from "./network-toggle"
 import { ConnectWalletButton } from "@/components/ui/murphy/connect-wallet-button"
 
@@ -14,9 +15,11 @@ export function Header() {
         
         {/* Center - Logo */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
-            ATLAS
-          </h1>
+          <Link href="/" className="cursor-pointer hover:opacity-80 transition-opacity">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+              ATLAS
+            </h1>
+          </Link>
         </div>
         
         {/* Right side - Connect Wallet */}
