@@ -5,21 +5,11 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Card } from "./card";
 import { SimplifiedTokenCreator } from "./murphy/sim-tm-lf";
 import Image from "next/image";
+import locationsData from "../../data/locations.json";
 
 interface ViralLocationSquaresProps {
   className?: string;
 }
-
-const locations = [
-  { id: 1, name: "Downtown", status: "active", image: "/Image/Pic00001.png" },
-  { id: 2, name: "Beachfront", status: "active", image: "/Image/Pic00002.png" },
-  { id: 3, name: "Mountain View", status: "active", image: "/Image/Pic00003.png" },
-  { id: 4, name: "City Center", status: "active", image: "/Image/Pic00004.png" },
-  { id: 5, name: "Riverside", status: "active", image: "/Image/Pic00005.png" },
-  { id: 6, name: "Park District", status: "active", image: "/Image/Pic00006.png" },
-  { id: 7, name: "Harbor Bay", status: "active", image: "/Image/Pic00007.png" },
-  { id: 8, name: "Skyline", status: "active", image: "/Image/Pic00008.png" },
-];
 
 export function ViralLocationSquares({ className }: ViralLocationSquaresProps) {
   const { connected } = useWallet();
@@ -27,7 +17,7 @@ export function ViralLocationSquares({ className }: ViralLocationSquaresProps) {
   return (
     <div className={`w-full h-full flex items-center justify-center ${className}`}>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 max-w-6xl w-full">
-        {locations.map((location) => (
+        {locationsData.map((location) => (
           <div key={location.id} className="flex flex-col items-center">
             <Card className="w-full aspect-square flex flex-col items-center justify-center p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 border-2 border-blue-200 dark:border-blue-800 mb-4 relative overflow-hidden">
               <div className="absolute inset-0 z-0">
@@ -55,6 +45,7 @@ export function ViralLocationSquares({ className }: ViralLocationSquaresProps) {
               <div className="w-full">
                 <SimplifiedTokenCreator 
                   className="w-full"
+                  tokenMetadata={location.tokenMetadata}
                 />
               </div>
             )}

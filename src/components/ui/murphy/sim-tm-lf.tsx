@@ -24,17 +24,25 @@ interface TMLaunchpadResult {
   signature: string;
 }
 
-// --- Props cho component (giống code cũ) ---
+// --- Props cho component (đã cập nhật để nhận token metadata) ---
+interface TokenMetadata {
+  name: string;
+  symbol: string;
+  uri: string;
+  sellerFeeBasisPoints: number;
+  isMutable: boolean;
+}
+
 interface SimplifiedTokenCreatorProps {
   className?: string;
+  tokenMetadata?: TokenMetadata;
   onTokenCreated?: (result: TMLaunchpadResult) => void;
 }
 
-// --- DỮ LIỆU NFT MẶC ĐỊNH (đã đổi tên biến) ---
-const tokenData = {
-  name: "VIRAL PLACE", // Giữ lại tên từ code mới hoặc đổi theo ý bạn
+// --- DỮ LIỆU NFT MẶC ĐỊNH (fallback khi không có metadata được truyền) ---
+const defaultTokenData: TokenMetadata = {
+  name: "VIRAL PLACE",
   symbol: "AON",
-  // Quan trọng: Thay thế bằng URL hình ảnh của bạn
   uri: "https://arweave.net/uDIb_4M2T5D4FllSCo3bVRaxb4omg1Jsc25BwR6y5oY", 
   sellerFeeBasisPoints: 500, // 5%
   isMutable: true,
@@ -42,6 +50,7 @@ const tokenData = {
 
 export function SimplifiedTokenCreator({
   className,
+  tokenMetadata,
   onTokenCreated,
 }: SimplifiedTokenCreatorProps) {
   // --- State Hooks (kết hợp từ hai phiên bản) ---
@@ -84,14 +93,16 @@ export function SimplifiedTokenCreator({
 
       toast.info("Vui lòng xác nhận giao dịch trong ví của bạn...", { id: toastId });
 
+      const finalTokenData = tokenMetadata || defaultTokenData;
+      
       const createResult = await createV1(umi, {
         mint: mint,
-        name: tokenData.name,
-        symbol: tokenData.symbol,
-        uri: tokenData.uri,
-        sellerFeeBasisPoints: percentAmount(tokenData.sellerFeeBasisPoints / 100),
+        name: finalTokenData.name,
+        symbol: finalTokenData.symbol,
+        uri: finalTokenData.uri,
+        sellerFeeBasisPoints: percentAmount(finalTokenData.sellerFeeBasisPoints / 100),
         creators: creators,
-        isMutable: tokenData.isMutable,
+        isMutable: finalTokenData.isMutable,
         tokenStandard: TokenStandard.NonFungible,
       }).sendAndConfirm(umi, {
         confirm: { commitment: 'confirmed' },
