@@ -1,14 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ConnectWalletButton } from "./connect-wallet-button";
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
@@ -16,58 +9,42 @@ import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-ad
 import {
   mplTokenMetadata,
   createFungible,
-  TokenStandard,
 } from '@metaplex-foundation/mpl-token-metadata';
 import {
   generateSigner,
   percentAmount,
   publicKey as umiPublicKey,
 } from '@metaplex-foundation/umi';
-import { Coins, Loader2, X } from "lucide-react";
+import { Loader2, X, CheckCircle2 } from "lucide-react"; // Đã thêm CheckCircle2
 import { toast } from "sonner";
 
 // Kiểu dữ liệu cho kết quả
 interface TMLaunchpadResult {
   mint: string;
   signature: string;
-  tokenType: string;
 }
 
-// Props cho component (tùy chọn, để có thể tái sử dụng)
+// Props cho component
 interface SimplifiedTokenCreatorProps {
   className?: string;
   onTokenCreated?: (result: TMLaunchpadResult) => void;
-  // Bạn có thể truyền dữ liệu token mặc định qua props nếu muốn
-  defaultTokenData?: {
-    name: string;
-    symbol: string;
-    description: string;
-    image: string;
-    decimals: number;
-    supply: number;
-    sellerFeeBasisPoints: number;
-    isMutable: boolean;
-    tokenType?: string;
-  }
 }
 
 export function SimplifiedTokenCreator({
   className,
   onTokenCreated,
-  defaultTokenData
 }: SimplifiedTokenCreatorProps) {
   // Dữ liệu token được định nghĩa sẵn.
-  // Nếu không được truyền qua props, nó sẽ sử dụng giá trị mặc định này.
-  const tokenData = defaultTokenData || {
+  const tokenData = {
     name: "My Awesome Token",
     symbol: "MAT",
-    description: "A token created with default settings.",
-    image: "https://arweave.net/your-image-url", // **QUAN TRỌNG:** Thay đổi URL hình ảnh của bạn!
+    // QUAN TRỌNG: Bạn cần upload file JSON metadata lên một dịch vụ như Arweave hoặc IPFS.
+    // URL này nên trỏ đến file JSON đó, không phải file hình ảnh.
+    uri: "https://arweave.net/your-metadata-file-url", 
     decimals: 9,
     supply: 1_000_000,
     sellerFeeBasisPoints: 500, // 5%
     isMutable: true,
-    tokenType: 'fungible',
   };
 
   // State hooks
@@ -91,31 +68,25 @@ export function SimplifiedTokenCreator({
       setIsSubmitting(true);
       setCurrentStage('confirming');
       setError("");
-      toast.loading("Creating your token...", { id: "token-create" });
+      toast.loading("Preparing your token...", { id: "token-create" });
 
-      // Create UMI instance
       const umi = createUmi(connection.rpcEndpoint)
         .use(walletAdapterIdentity({ publicKey, signTransaction, signAllTransactions }))
         .use(mplTokenMetadata());
 
-      // Generate mint keypair
       const mint = generateSigner(umi);
       
-      // Định nghĩa người tạo (creator) là ví đã kết nối
-      const creators = [
-        {
-          address: umiPublicKey(publicKey.toString()),
-          verified: true, // Tự động xác thực vì họ là người ký giao dịch
-          share: 100,
-        },
-      ];
+      const creators = [{
+        address: umiPublicKey(publicKey.toString()),
+        verified: true,
+        share: 100,
+      }];
 
-      // Create fungible token
       const createResult = await createFungible(umi, {
         mint,
         name: tokenData.name,
         symbol: tokenData.symbol,
-        uri: tokenData.image, // Sử dụng hình ảnh làm URI cho đơn giản
+        uri: tokenData.uri,
         sellerFeeBasisPoints: percentAmount(tokenData.sellerFeeBasisPoints / 100),
         decimals: tokenData.decimals,
         creators: creators,
@@ -127,15 +98,14 @@ export function SimplifiedTokenCreator({
       const resultData: TMLaunchpadResult = {
         mint: mint.publicKey.toString(),
         signature,
-        tokenType: tokenData.tokenType || 'fungible',
       };
 
       setResult(resultData);
-      setCurrentStage('success');
+      setCurrentStage('success'); // Chuyển sang trạng thái thành công
       if (onTokenCreated) {
         onTokenCreated(resultData);
       }
-      toast.success("Token created successfully!", { id: "token-create" });
+      toast.success("Token received!", { id: "token-create" });
 
     } catch (err: any) {
       console.error("Error creating token:", err);
@@ -151,73 +121,58 @@ export function SimplifiedTokenCreator({
     }
   };
   
-  // Hàm để reset lại trạng thái
-  const reset = () => {
+  // Reset chỉ khi có lỗi
+  const resetOnError = () => {
     setCurrentStage('input');
     setError("");
-    setResult(null);
   };
 
-  // Các hàm render giao diện cho các trạng thái khác nhau (success, error, confirming)
+  // --- Các hàm render giao diện cho từng trạng thái ---
+
+  // Trạng thái THÀNH CÔNG: Hiển thị thông báo tĩnh
   const renderSuccess = () => (
-    <div className="space-y-4 text-center">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-        <Coins className="h-6 w-6 text-green-600" />
-      </div>
-      <h3 className="text-lg font-semibold">Token Created!</h3>
-      <div className="bg-secondary/50 rounded-lg p-4 text-left">
-          <p className="text-sm"><strong>Mint Address:</strong></p>
-          <p className="text-sm font-mono break-all">{result?.mint}</p>
-      </div>
-      <Button onClick={reset} className="w-full">Create Another</Button>
+    <div className="flex flex-col items-center justify-center text-center p-4 bg-green-50 border border-green-200 rounded-lg">
+      <CheckCircle2 className="h-10 w-10 text-green-600 mb-2" />
+      <h3 className="text-lg font-semibold text-green-800">Token Received!</h3>
+      <p className="text-sm text-muted-foreground">The token has been minted to your wallet.</p>
+      <p className="text-xs font-mono break-all mt-2 bg-gray-100 p-2 rounded w-full">{result?.mint}</p>
     </div>
   );
 
+  // Trạng thái LỖI: Cho phép thử lại
   const renderError = () => (
-    <div className="space-y-4 text-center">
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-        <X className="h-6 w-6 text-red-600" />
-      </div>
-      <h3 className="text-lg font-semibold">Creation Failed</h3>
-      <div className="bg-destructive/10 text-destructive rounded-lg p-4 text-left">
-        <p className="text-sm break-words">{error}</p>
-      </div>
-      <Button onClick={reset} className="w-full">Try Again</Button>
-    </div>
-  );
-
-  const renderConfirming = () => (
-    <div className="flex flex-col items-center justify-center space-y-4 p-8">
-      <Loader2 className="h-10 w-10 animate-spin text-primary" />
-      <h3 className="text-lg font-semibold">Creating Token...</h3>
-      <p className="text-sm text-muted-foreground">Please approve the transaction in your wallet.</p>
+    <div className="flex flex-col items-center justify-center text-center space-y-2">
+       <X className="h-8 w-8 text-red-500" />
+       <p className="text-destructive text-sm">Creation failed. Please try again.</p>
+       <Button onClick={resetOnError} variant="outline">
+          Try Again
+       </Button>
     </div>
   );
   
-  const renderInput = () => (
-    <div className="text-center space-y-4">
-       <p className="text-muted-foreground">Click the button below to mint your default token.</p>
-       {!connected ? (
-          <ConnectWalletButton className="w-full" />
-        ) : (
-          <Button
-            onClick={handleCreateToken}
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              "Create Token"
-            )}
-          </Button>
-        )}
+  // Trạng thái ĐANG CHỜ: Hiển thị spinner
+  const renderConfirming = () => (
+    <div className="flex items-center justify-center space-x-2">
+      <Loader2 className="h-5 w-5 animate-spin" />
+      <span className="text-muted-foreground">Processing...</span>
     </div>
   );
-
+  
+  // Trạng thái BAN ĐẦU: Hiển thị nút kết nối ví hoặc nút tạo token
+  const renderInput = () => {
+    if (!connected) {
+      return <ConnectWalletButton className="w-full" />;
+    }
+    return (
+      <Button
+        onClick={handleCreateToken}
+        className="w-full"
+        disabled={isSubmitting}
+      >
+        Create Token
+      </Button>
+    );
+  };
 
   // Render nội dung chính dựa trên trạng thái
   const renderContent = () => {
@@ -232,19 +187,8 @@ export function SimplifiedTokenCreator({
   }
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Coins className="h-6 w-6" />
-          Simplified Token Creator
-        </CardTitle>
-        <CardDescription>
-          One-click creation for a pre-configured token.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {renderContent()}
-      </CardContent>
-    </Card>
+    <div className={className}>
+      {renderContent()}
+    </div>
   );
 }
