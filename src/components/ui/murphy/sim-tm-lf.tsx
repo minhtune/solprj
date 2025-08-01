@@ -36,13 +36,11 @@ export function SimplifiedTokenCreator({
 }: SimplifiedTokenCreatorProps) {
   // Dữ liệu token được định nghĩa sẵn.
   const tokenData = {
-    name: "My Awesome Token",
+    name: "VIRAL PLACE",
     symbol: "MAT",
-    // QUAN TRỌNG: Bạn cần upload file JSON metadata lên một dịch vụ như Arweave hoặc IPFS.
-    // URL này nên trỏ đến file JSON đó, không phải file hình ảnh.
     uri: "https://arweave.net/your-metadata-file-url", 
-    decimals: 9,
-    supply: 1_000_000,
+    decimals: 0,
+    supply: 1,
     sellerFeeBasisPoints: 500, // 5%
     isMutable: true,
   };
@@ -133,8 +131,6 @@ export function SimplifiedTokenCreator({
   const renderSuccess = () => (
     <div className="flex flex-col items-center justify-center text-center p-4 bg-green-50 border border-green-200 rounded-lg">
       <CheckCircle2 className="h-10 w-10 text-green-600 mb-2" />
-      <h3 className="text-lg font-semibold text-green-800">Token Received!</h3>
-      <p className="text-sm text-muted-foreground">The token has been minted to your wallet.</p>
       <p className="text-xs font-mono break-all mt-2 bg-gray-100 p-2 rounded w-full">{result?.mint}</p>
     </div>
   );

@@ -7,7 +7,7 @@ export default function Home() {
       <section className="flex-1 flex flex-col items-center justify-center p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-            Viral Locations
+            CHECK IN TO ATLAS - LOCATIONS NFT
           </h2>
           <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Discover the most trending and viral hotspots across the network. 

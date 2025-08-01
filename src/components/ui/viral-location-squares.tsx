@@ -21,7 +21,7 @@ const locations = [
 export function ViralLocationSquares({ className }: ViralLocationSquaresProps) {
   return (
     <div className={`w-full h-full flex items-center justify-center ${className}`}>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl w-full">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 max-w-6xl w-full">
         {locations.map((location) => (
           <div key={location.id} className="flex flex-col items-center">
             <Card className="w-full aspect-square flex flex-col items-center justify-center p-4 cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-105 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 border-2 border-blue-200 dark:border-blue-800 mb-4 relative overflow-hidden">
