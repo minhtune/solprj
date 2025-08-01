@@ -881,7 +881,7 @@ export function TMLaunchpadForm({
                         Creating...
                       </>
                     ) : (
-                      "Create Token"
+                      "Create NFT"
                     )}
                   </Button>
                 )}
@@ -899,9 +899,7 @@ export function TMLaunchpadForm({
           <Coins className="h-6 w-6" />
           Token Metadata Launchpad
         </CardTitle>
-        <CardDescription>
-          Create tokens with rich metadata using Metaplex Token Metadata standard
-        </CardDescription>
+
       </CardHeader>
       <CardContent>
         {renderStageContent()}

@@ -2,116 +2,126 @@
 
 import React, { useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
+
+// --- Import các thành phần UI cần thiết ---
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ConnectWalletButton } from "./connect-wallet-button";
+
+// --- Import các thư viện UMI/Metaplex ---
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults';
 import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters';
-import {
-  mplTokenMetadata,
-  createFungible,
-} from '@metaplex-foundation/mpl-token-metadata';
-import {
-  generateSigner,
-  percentAmount,
-  publicKey as umiPublicKey,
-} from '@metaplex-foundation/umi';
-import { Loader2, X, CheckCircle2 } from "lucide-react"; // Đã thêm CheckCircle2
+import { mplTokenMetadata, createV1, TokenStandard } from '@metaplex-foundation/mpl-token-metadata';
+import { generateSigner, percentAmount, publicKey as umiPublicKey } from '@metaplex-foundation/umi';
+
+// --- Import Icons và Notifications ---
+import { Coins, Loader2, X, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
-// Kiểu dữ liệu cho kết quả
+// --- Định nghĩa kiểu dữ liệu cho kết quả (giống code cũ) ---
 interface TMLaunchpadResult {
   mint: string;
   signature: string;
 }
 
-// Props cho component
+// --- Props cho component (giống code cũ) ---
 interface SimplifiedTokenCreatorProps {
   className?: string;
   onTokenCreated?: (result: TMLaunchpadResult) => void;
 }
 
+// --- DỮ LIỆU NFT MẶC ĐỊNH (đã đổi tên biến) ---
+const tokenData = {
+  name: "VIRAL PLACE", // Giữ lại tên từ code mới hoặc đổi theo ý bạn
+  symbol: "AON",
+  // Quan trọng: Thay thế bằng URL hình ảnh của bạn
+  uri: "https://arweave.net/uDIb_4M2T5D4FllSCo3bVRaxb4omg1Jsc25BwR6y5oY", 
+  sellerFeeBasisPoints: 500, // 5%
+  isMutable: true,
+};
+
 export function SimplifiedTokenCreator({
   className,
   onTokenCreated,
 }: SimplifiedTokenCreatorProps) {
-  // Dữ liệu token được định nghĩa sẵn.
-  const tokenData = {
-    name: "VIRAL PLACE",
-    symbol: "MAT",
-    uri: "https://arweave.net/your-metadata-file-url", 
-    decimals: 0,
-    supply: 1,
-    sellerFeeBasisPoints: 500, // 5%
-    isMutable: true,
-  };
-
-  // State hooks
+  // --- State Hooks (kết hợp từ hai phiên bản) ---
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStage, setCurrentStage] = useState<'input' | 'confirming' | 'success' | 'error'>('input');
-  const [error, setError] = useState<string>("");
   const [result, setResult] = useState<TMLaunchpadResult | null>(null);
+  const [error, setError] = useState<string>("");
 
-  // Wallet hooks
-  const { publicKey, connected, signTransaction, signAllTransactions } = useWallet();
+  // --- Wallet Hooks ---
+  const wallet = useWallet();
   const { connection } = useConnection();
+  const { publicKey, connected } = wallet;
 
-  // Handler để tạo token
+  // --- Hàm xử lý chính khi nhấn nút (đã đổi tên) ---
   const handleCreateToken = async () => {
     if (!connected || !publicKey) {
-      toast.error("Please connect your wallet first.");
+      toast.error("Vui lòng kết nối ví của bạn trước.");
       return;
     }
 
-    try {
-      setIsSubmitting(true);
-      setCurrentStage('confirming');
-      setError("");
-      toast.loading("Preparing your token...", { id: "token-create" });
+    setIsSubmitting(true);
+    setCurrentStage('confirming');
+    setError("");
+    setResult(null);
+    const toastId = "token-creation";
+    toast.loading("Đang khởi tạo giao dịch...", { id: toastId });
 
+    try {
       const umi = createUmi(connection.rpcEndpoint)
-        .use(walletAdapterIdentity({ publicKey, signTransaction, signAllTransactions }))
+        .use(walletAdapterIdentity(wallet))
         .use(mplTokenMetadata());
 
       const mint = generateSigner(umi);
-      
+
       const creators = [{
-        address: umiPublicKey(publicKey.toString()),
+        address: umiPublicKey(publicKey.toBase58()),
         verified: true,
         share: 100,
       }];
 
-      const createResult = await createFungible(umi, {
-        mint,
+      toast.info("Vui lòng xác nhận giao dịch trong ví của bạn...", { id: toastId });
+
+      const createResult = await createV1(umi, {
+        mint: mint,
         name: tokenData.name,
         symbol: tokenData.symbol,
         uri: tokenData.uri,
         sellerFeeBasisPoints: percentAmount(tokenData.sellerFeeBasisPoints / 100),
-        decimals: tokenData.decimals,
         creators: creators,
         isMutable: tokenData.isMutable,
-      }).sendAndConfirm(umi);
-
-      const signature = Buffer.from(createResult.signature).toString('base64');
+        tokenStandard: TokenStandard.NonFungible,
+      }).sendAndConfirm(umi, {
+        confirm: { commitment: 'confirmed' },
+      });
       
+      // Sử dụng lại kiểu dữ liệu và định dạng signature từ code cũ
       const resultData: TMLaunchpadResult = {
-        mint: mint.publicKey.toString(),
-        signature,
+        mint: mint.publicKey,
+        signature: Buffer.from(createResult.signature).toString('base64'), 
       };
 
       setResult(resultData);
-      setCurrentStage('success'); // Chuyển sang trạng thái thành công
+      setCurrentStage('success');
+      toast.success("Tạo Token thành công!", {
+        id: toastId,
+        description: `Mint: ${resultData.mint}`,
+      });
+
+      // **Gọi callback onTokenCreated nếu có**
       if (onTokenCreated) {
         onTokenCreated(resultData);
       }
-      toast.success("Token received!", { id: "token-create" });
 
     } catch (err: any) {
-      console.error("Error creating token:", err);
-      const errorMessage = err.message || "An unknown error occurred.";
+      console.error("Lỗi khi tạo token:", err);
+      const errorMessage = err.message || "Đã xảy ra lỗi không xác định.";
       setError(errorMessage);
       setCurrentStage('error');
-      toast.error("Failed to create token", {
-        id: "token-create",
+      toast.error("Tạo Token thất bại", {
+        id: toastId,
         description: errorMessage,
       });
     } finally {
@@ -119,72 +129,83 @@ export function SimplifiedTokenCreator({
     }
   };
   
-  // Reset chỉ khi có lỗi
-  const resetOnError = () => {
+  const resetState = () => {
     setCurrentStage('input');
+    setResult(null);
     setError("");
-  };
+    setIsSubmitting(false);
+  }
 
   // --- Các hàm render giao diện cho từng trạng thái ---
 
-  // Trạng thái THÀNH CÔNG: Hiển thị thông báo tĩnh
   const renderSuccess = () => (
-    <div className="flex flex-col items-center justify-center text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-      <CheckCircle2 className="h-10 w-10 text-green-600 mb-2" />
-      <p className="text-xs font-mono break-all mt-2 bg-gray-100 p-2 rounded w-full">{result?.mint}</p>
+    <div className="text-center space-y-4">
+        <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
+        <h3 className="font-semibold">Hoàn thành!</h3>
+        <p className="text-sm text-muted-foreground">
+            NFT của bạn đã được tạo thành công.
+        </p>
+        <div className="text-left bg-secondary/50 rounded-lg p-3 text-xs break-all">
+            <p><strong>Address:</strong> {result?.mint}</p>
+        </div>
+    </div>
+  );
+  
+  const renderError = () => (
+    <div className="text-center space-y-4">
+        <X className="mx-auto h-12 w-12 text-destructive" />
+        <h3 className="font-semibold">Tạo thất bại</h3>
+        <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg">
+            {error}
+        </p>
+        <Button onClick={resetState} variant="outline" className="w-full">Thử lại</Button>
     </div>
   );
 
-  // Trạng thái LỖI: Cho phép thử lại
-  const renderError = () => (
-    <div className="flex flex-col items-center justify-center text-center space-y-2">
-       <X className="h-8 w-8 text-red-500" />
-       <p className="text-destructive text-sm">Creation failed. Please try again.</p>
-       <Button onClick={resetOnError} variant="outline">
-          Try Again
-       </Button>
-    </div>
-  );
-  
-  // Trạng thái ĐANG CHỜ: Hiển thị spinner
   const renderConfirming = () => (
-    <div className="flex items-center justify-center space-x-2">
+    <div className="flex items-center justify-center space-x-2 h-10">
       <Loader2 className="h-5 w-5 animate-spin" />
-      <span className="text-muted-foreground">Processing...</span>
+      <span className="text-muted-foreground">Đang xử lý...</span>
     </div>
   );
-  
-  // Trạng thái BAN ĐẦU: Hiển thị nút kết nối ví hoặc nút tạo token
+
   const renderInput = () => {
     if (!connected) {
       return <ConnectWalletButton className="w-full" />;
     }
+
     return (
       <Button
         onClick={handleCreateToken}
-        className="w-full"
         disabled={isSubmitting}
+        className="w-full"
+        size="lg"
       >
-        Create Token
+        <Coins className="mr-2 h-4 w-4" />
+        Create NFT
       </Button>
     );
   };
 
-  // Render nội dung chính dựa trên trạng thái
   const renderContent = () => {
     switch (currentStage) {
-      case 'confirming': return renderConfirming();
-      case 'success': return renderSuccess();
-      case 'error': return renderError();
+      case 'confirming':
+        return renderConfirming();
+      case 'success':
+        return renderSuccess();
+      case 'error':
+        return renderError();
       case 'input':
       default:
         return renderInput();
     }
-  }
+  };
 
   return (
-    <div className={className}>
-      {renderContent()}
-    </div>
+    <Card className={className}>
+      <CardContent>
+        {renderContent()}
+      </CardContent>
+    </Card>
   );
 }
