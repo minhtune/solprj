@@ -32,12 +32,12 @@ export default function LocationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 py-8 px-4">
+      <div className="max-w-6xl mx-auto">
         {/* Back Button */}
-        <div className="mb-8">
+        <div className="mb-6">
           <Link href="/">
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button variant="outline" className="flex items-center gap-2 hover:bg-white/80 transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
@@ -47,73 +47,86 @@ export default function LocationPage() {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Image Section */}
-          <div className="space-y-4">
-            <Card className="overflow-hidden">
-              <div className="relative aspect-square">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* Image Section - Takes up 2/3 of the space */}
+          <div className="xl:col-span-2">
+            <Card className="overflow-hidden shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+              <div className="relative aspect-[4/3] bg-gray-100 dark:bg-gray-800">
                 <Image
                   src={location.image}
                   alt={location.name}
                   fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-contain"
+                  sizes="(max-width: 1280px) 100vw, 66vw"
                 />
                 <div className="absolute top-4 right-4">
-                  <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg"></div>
                 </div>
               </div>
             </Card>
-          </div>
-
-          {/* Details Section */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                {location.name}
-              </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-300">
-                {location.tokenMetadata.name}
-              </p>
-              <div className="flex items-center gap-2 mt-4">
-                <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm font-medium">
-                  {location.status}
-                </span>
-                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium">
-                  Viral Hotspot
+            {/* Destination Bar */}
+            <div className="mt-4 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg p-4 text-center shadow-md">
+              <div className="flex items-center justify-center gap-3">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span className="text-white text-lg font-semibold">
+                  {location.destination}
                 </span>
               </div>
             </div>
+          </div>
+
+          {/* Details Section - Takes up 1/3 of the space */}
+          <div className="space-y-6">
+            {/* Location Info */}
+            <Card className="p-6 shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                {location.name}
+              </h1>
+              <p className="text-base text-gray-600 dark:text-gray-300 mb-4">
+                {location.tokenMetadata.name}
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-xs font-medium">
+                  {location.status}
+                </span>
+                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs font-medium">
+                  Viral Hotspot
+                </span>
+              </div>
+            </Card>
 
             {/* NFT Details */}
-            <Card className="p-6">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
+            <Card className="p-6 shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+              <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                 NFT Information
               </h2>
               <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Symbol:</span>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Symbol:</span>
                   <span className="font-medium text-gray-900 dark:text-white">
                     {location.tokenMetadata.symbol}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Royalty Fee:</span>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Royalty Fee:</span>
                   <span className="font-medium text-gray-900 dark:text-white">
                     {location.tokenMetadata.sellerFeeBasisPoints / 100}%
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600 dark:text-gray-400">Mutable:</span>
+                <div className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Mutable:</span>
                   <span className="font-medium text-gray-900 dark:text-white">
                     {location.tokenMetadata.isMutable ? "Yes" : "No"}
                   </span>
                 </div>
-                <div className="pt-3 border-t">
-                  <span className="text-gray-600 dark:text-gray-400 text-sm">
+                <div className="pt-3">
+                  <span className="text-sm text-gray-600 dark:text-gray-400 block mb-2">
                     Metadata URI:
                   </span>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 break-all mt-1">
+                  <p className="text-xs text-blue-600 dark:text-blue-400 break-all bg-blue-50 dark:bg-blue-950/50 p-2 rounded">
                     {location.tokenMetadata.uri}
                   </p>
                 </div>
@@ -122,26 +135,28 @@ export default function LocationPage() {
 
             {/* Token Creator */}
             {connected && (
-              <Card className="p-6">
-                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                  Create NFT
+              <Card className="p-6 shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                CHECK IN - GET NFT
                 </h2>
-                <SimplifiedTokenCreator 
-                  className="w-full"
-                  tokenMetadata={location.tokenMetadata}
-                />
+                <div className="flex justify-center">
+                  <SimplifiedTokenCreator 
+                    className="w-full max-w-xs"
+                    tokenMetadata={location.tokenMetadata}
+                  />
+                </div>
               </Card>
             )}
 
             {!connected && (
-              <Card className="p-6 text-center">
-                <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                  Create NFT
+              <Card className="p-6 text-center shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                  CHECK IN - GET NFT
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                   Connect your wallet to create an NFT for this location.
                 </p>
-                <Button disabled>
+                <Button disabled className="w-full max-w-xs">
                   Connect Wallet to Continue
                 </Button>
               </Card>

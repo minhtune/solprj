@@ -189,8 +189,8 @@ export function SimplifiedTokenCreator({
       <Button
         onClick={handleCreateToken}
         disabled={isSubmitting}
-        className="w-full"
-        size="lg"
+        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+        size="default"
       >
         <Coins className="mr-2 h-4 w-4" />
         Create NFT

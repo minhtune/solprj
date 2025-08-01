@@ -4,6 +4,7 @@
     "name": "Vịnh Hạ Long",
     "status": "active",
     "image": "/Image/Pic00001.png",
+    "destination": "Quảng Ninh, Việt Nam",
     "tokenMetadata": {
       "name": "Ha Long Bay",
       "symbol": "HLB",
@@ -17,6 +18,7 @@
     "name": "Tràng An",
     "status": "active",
     "image": "/Image/Pic00002.png",
+    "destination": "Ninh Bình, Việt Nam",
     "tokenMetadata": {
       "name": "Trang An",
       "symbol": "TA",
@@ -30,6 +32,7 @@
     "name": "Cố đô Huế",
     "status": "active",
     "image": "/Image/Pic00003.png",
+    "destination": "Thừa Thiên Huế, Việt Nam",
     "tokenMetadata": {
       "name": "Hue Imperial City",
       "symbol": "HIC",
@@ -43,6 +46,7 @@
     "name": "Phong Nha",
     "status": "active",
     "image": "/Image/Pic00004.png",
+    "destination": "Quảng Bình, Việt Nam",
     "tokenMetadata": {
       "name": "Phong Nha Cave",
       "symbol": "PNC",
@@ -56,6 +60,7 @@
     "name": "Đồi chè Thanh Chương",
     "status": "active",
     "image": "/Image/Pic00005.png",
+    "destination": "Nghệ An, Việt Nam",
     "tokenMetadata": {
       "name": "Thanh Chương Tea Hills",
       "symbol": "TCH",
@@ -69,6 +74,7 @@
     "name": "Biển Nha Trang",
     "status": "active",
     "image": "/Image/Pic00006.png",
+    "destination": "Khánh Hòa, Việt Nam",
     "tokenMetadata": {
       "name": "Nha Trang Beach",
       "symbol": "NTB",
@@ -82,6 +88,7 @@
     "name": "Cầu Đà Nẵng",
     "status": "active",
     "image": "/Image/Pic00007.png",
+    "destination": "Đà Nẵng, Việt Nam",
     "tokenMetadata": {
       "name": "Da Nang Bridge",
       "symbol": "DNB",
@@ -95,6 +102,7 @@
     "name": "Hoàng Thành Thăng Long",
     "status": "active",
     "image": "/Image/Pic00008.png",
+    "destination": "Hà Nội, Việt Nam",
     "tokenMetadata": {
       "name": "Thang Long Imperial Citadel",
       "symbol": "TLC",
