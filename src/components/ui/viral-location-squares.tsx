@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Card } from "./card";
 import { SimplifiedTokenCreator } from "./murphy/sim-tm-lf";
 import Image from "next/image";
@@ -19,6 +22,8 @@ const locations = [
 ];
 
 export function ViralLocationSquares({ className }: ViralLocationSquaresProps) {
+  const { connected } = useWallet();
+
   return (
     <div className={`w-full h-full flex items-center justify-center ${className}`}>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 max-w-6xl w-full">
@@ -45,11 +50,14 @@ export function ViralLocationSquares({ className }: ViralLocationSquaresProps) {
                 </p>
               </div>
             </Card>
-            <div className="w-full">
-              <SimplifiedTokenCreator 
-                className="w-full"
-              />
-            </div>
+            {/* Only show the token creator when wallet is connected */}
+            {connected && (
+              <div className="w-full">
+                <SimplifiedTokenCreator 
+                  className="w-full"
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
