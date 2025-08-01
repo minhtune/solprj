@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,8 +14,20 @@ export default function LocationPage() {
   const params = useParams();
   const { connected } = useWallet();
   const locationId = parseInt(params.id as string);
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   
   const location = locationsData.find(loc => loc.id === locationId);
+
+  const handleCheckIn = () => {
+    setIsCheckedIn(true);
+    setShowSuccessMessage(true);
+    
+    // Hide success message after 3 seconds
+    setTimeout(() => {
+      setShowSuccessMessage(false);
+    }, 3000);
+  };
 
   if (!location) {
     return (
@@ -33,6 +45,25 @@ export default function LocationPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950 dark:to-indigo-900 py-8 px-4">
+      {/* Success Message Overlay */}
+      {showSuccessMessage && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 text-center shadow-xl max-w-md mx-4">
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+              Check-in Successful!
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              You have successfully checked in at {location.name}. You can now create your NFT.
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-6xl mx-auto">
         {/* Back Button */}
         <div className="mb-6">
@@ -133,34 +164,56 @@ export default function LocationPage() {
               </div>
             </Card>
 
-            {/* Token Creator */}
-            {connected && (
-              <Card className="p-6 shadow-lg border-0 bg-white/90 backdrop-blur-sm">
-                <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+            {/* Check-in Section */}
+            <Card className="p-6 shadow-lg border-0 bg-white/90 backdrop-blur-sm">
+              <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                 CHECK IN - GET NFT
-                </h2>
-                <div className="flex justify-center">
-                  <SimplifiedTokenCreator 
-                    className="w-full max-w-xs"
-                    tokenMetadata={location.tokenMetadata}
-                  />
+              </h2>
+              
+              {!isCheckedIn ? (
+                <div className="text-center">
+                  <Button 
+                    onClick={handleCheckIn}
+                    className="w-full max-w-xs bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105"
+                  >
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Check In Now
+                  </Button>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-3">
+                    Check in to unlock NFT creation for this location
+                  </p>
                 </div>
-              </Card>
-            )}
-
-            {!connected && (
-              <Card className="p-6 text-center shadow-lg border-0 bg-white/90 backdrop-blur-sm">
-                <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                  CHECK IN - GET NFT
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Connect your wallet to create an NFT for this location.
-                </p>
-                <Button disabled className="w-full max-w-xs">
-                  Connect Wallet to Continue
-                </Button>
-              </Card>
-            )}
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="font-medium">Checked In Successfully!</span>
+                  </div>
+                  
+                  {connected ? (
+                    <div className="flex justify-center">
+                      <SimplifiedTokenCreator 
+                        className="w-full max-w-xs"
+                        tokenMetadata={location.tokenMetadata}
+                      />
+                    </div>
+                  ) : (
+                    <div className="text-center">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Connect your wallet to create an NFT for this location.
+                      </p>
+                      <Button disabled className="w-full max-w-xs">
+                        Connect Wallet to Continue
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card>
           </div>
         </div>
       </div>
