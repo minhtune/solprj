@@ -122,14 +122,7 @@ export default function Home() {
           <p className="text-xl text-blue-100 mb-8 leading-relaxed">
             Every step taken by users is transformed into a valuable, scarce, and tradable digital asset, verified by their own journey. Join the future of experiential tourism.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-3 bg-white text-blue-600 hover:bg-gray-100">
-              Connect Wallet
-            </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-3 border-white text-white hover:bg-white hover:text-blue-600">
-              Explore Locations
-            </Button>
-          </div>
+
         </div>
       </section>
 
