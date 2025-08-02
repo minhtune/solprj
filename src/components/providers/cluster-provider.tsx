@@ -19,10 +19,20 @@ interface ClusterProviderProps {
 
 export function ClusterProvider({ children, defaultCluster = "mainnet" }: ClusterProviderProps) {
   const [cluster, setCluster] = useState<Cluster>(defaultCluster);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Hydration-safe initialization from localStorage
+  useEffect(() => {
+    const savedCluster = window.localStorage.getItem("NEXT_PUBLIC_CLUSTER") as Cluster;
+    if (savedCluster && (savedCluster === "mainnet" || savedCluster === "devnet")) {
+      setCluster(savedCluster);
+    }
+    setIsHydrated(true);
+  }, []);
 
   // Update environment variable when cluster changes
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (isHydrated) {
       window.localStorage.setItem("NEXT_PUBLIC_CLUSTER", cluster);
       
       // Update the global environment variable for components that read it
@@ -31,17 +41,7 @@ export function ClusterProvider({ children, defaultCluster = "mainnet" }: Cluste
       // Dispatch a custom event to notify components of cluster change
       window.dispatchEvent(new CustomEvent("clusterChanged", { detail: { cluster } }));
     }
-  }, [cluster]);
-
-  // Initialize cluster from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedCluster = window.localStorage.getItem("NEXT_PUBLIC_CLUSTER") as Cluster;
-      if (savedCluster && (savedCluster === "mainnet" || savedCluster === "devnet")) {
-        setCluster(savedCluster);
-      }
-    }
-  }, []);
+  }, [cluster, isHydrated]);
 
   const value: ClusterContextType = {
     cluster,
@@ -66,13 +66,6 @@ export function useCluster() {
 
 // Helper function to get current cluster from environment
 export function getCurrentCluster(): Cluster {
-  if (typeof window !== "undefined") {
-    const saved = window.localStorage.getItem("NEXT_PUBLIC_CLUSTER");
-    if (saved === "mainnet" || saved === "devnet") {
-      return saved;
-    }
-  }
-  
   // Fallback to environment variable or default
   const envCluster = process.env.NEXT_PUBLIC_CLUSTER;
   if (envCluster === "mainnet" || envCluster === "devnet") {

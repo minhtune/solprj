@@ -66,13 +66,17 @@ export const ModalContext = createContext<ModalContextState>({
 export const WalletProvider = ({ children, ...props }: WalletProviderProps) => {
   const [currentEndpointIndex, setCurrentEndpointIndex] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
-  const [walletType, setWalletType] = useState<'standard' | 'lazorkit'>(() => {
-    if (typeof window !== 'undefined') {
-      const savedType = localStorage.getItem('walletType')
-      return (savedType as 'standard' | 'lazorkit') || 'standard'
+  const [walletType, setWalletType] = useState<'standard' | 'lazorkit'>('standard')
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  // Hydration-safe initialization
+  useEffect(() => {
+    const savedType = localStorage.getItem('walletType')
+    if (savedType === 'standard' || savedType === 'lazorkit') {
+      setWalletType(savedType)
     }
-    return 'standard'
-  })
+    setIsHydrated(true)
+  }, [])
 
   // Network detection - only force devnet for LazorKit operations
   const isMainnet = useMemo(() => {
@@ -117,14 +121,14 @@ export const WalletProvider = ({ children, ...props }: WalletProviderProps) => {
 
   // Persist wallet type
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isHydrated) {
       localStorage.setItem('walletType', walletType)
     }
-  }, [walletType])
+  }, [walletType, isHydrated])
 
   // Auto-connect effect
   useEffect(() => {
-    if (props.autoConnect && walletType === 'lazorkit') {
+    if (props.autoConnect && walletType === 'lazorkit' && isHydrated) {
       // Attempt to reconnect LazorKit wallet on mount
       const reconnectLazorKit = async () => {
         try {
@@ -136,17 +140,17 @@ export const WalletProvider = ({ children, ...props }: WalletProviderProps) => {
       }
       reconnectLazorKit()
     }
-  }, [props.autoConnect, walletType])
+  }, [props.autoConnect, walletType, isHydrated])
 
   // Effect to handle network switching for LazorKit
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (isHydrated) {
       const cluster = walletType === 'lazorkit' ? "devnet" : (isMainnet ? "mainnet" : "devnet")
       window.localStorage.setItem("NEXT_PUBLIC_CLUSTER", cluster)
       ;(window as any).NEXT_PUBLIC_CLUSTER = cluster
       window.dispatchEvent(new CustomEvent("clusterChanged", { detail: { cluster } }))
     }
-  }, [walletType, isMainnet])
+  }, [walletType, isMainnet, isHydrated])
 
   // Context value memoization
   const contextValue = useMemo(() => ({
