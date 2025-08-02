@@ -1,9 +1,17 @@
+"use client";
+
 import { ViralLocationSquares } from "@/components/ui/viral-location-squares";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useRef } from "react";
 
 export default function Home() {
+  const trendingLocationsRef = useRef<HTMLElement>(null);
+
+  const scrollToTrendingLocations = () => {
+    trendingLocationsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
   return (
     <div className="font-sans flex flex-col min-h-screen">
       {/* Hero Section */}
@@ -23,7 +31,11 @@ export default function Home() {
             <span className="font-semibold text-blue-200"> Proof of Experience</span> meets the future of travel.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button size="lg" className="text-lg px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg">
+            <Button 
+              size="lg" 
+              className="text-lg px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
+              onClick={scrollToTrendingLocations}
+            >
               Start Your Journey
             </Button>
             <Button variant="outline" size="lg" className="text-lg px-8 py-3 border-white text-white hover:bg-white hover:text-gray-900 shadow-lg">
@@ -125,7 +137,7 @@ export default function Home() {
       </section>
 
       {/* Viral Location Squares Section */}
-      <section className="flex-1 flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800">
+      <section ref={trendingLocationsRef} className="flex-1 flex flex-col items-center justify-center p-8 bg-gray-50 dark:bg-gray-800">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
             Trending Locations
