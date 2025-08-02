@@ -30,16 +30,13 @@ export default function Home() {
             Transform every location visit into a unique digital asset. 
             <span className="font-semibold text-blue-200"> Proof of Experience</span> meets the future of travel.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex justify-center items-center">
             <Button 
               size="lg" 
               className="text-lg px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
               onClick={scrollToTrendingLocations}
             >
               Start Your Journey
-            </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-3 border-white text-white hover:bg-white hover:text-gray-900 shadow-lg">
-              Learn More
             </Button>
           </div>
         </div>
